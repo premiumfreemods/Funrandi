@@ -3,307 +3,172 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TEAM EARNING — premium UI</title>
+<title>Aviator Circle UI</title>
 <style>
   :root{
-    --card-w: 170px;
-    --radius: 12px;
-    --stroke: 6px;
-    --bg: #050505;
-    --neon: #00ffd9;
+    --accent: #00ff9c;
+    --bg: #061017;
+    --muted: rgba(255,255,255,0.6);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
-  *{box-sizing:border-box}
-  body{
-    height:100vh;
-    margin:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background: transparent;
-    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  html,body{height:100%;margin:0;background:var(--bg);color:#fff;overflow:hidden}
+  .app {
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;box-sizing:border-box;
   }
-  .card-wrap{
-    width:var(--card-w);
-    position:relative;
-    border-radius: calc(var(--radius) + var(--stroke));
-    padding:8px;
-    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+
+  canvas#matrix {
+    position:fixed;left:0;top:0;width:100%;height:100%;
+    z-index:0;display:block;
   }
-  .card-wrap::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius: calc(var(--radius) + var(--stroke));
-    padding: var(--stroke);
-    background: linear-gradient(90deg,
-      #ff4d4d, #ffa64d, #ffee4d, #8bff4d, #4dffeb, #4db8ff, #b84dff, #ff4db8, #ff4d4d);
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    pointer-events:none;
+
+  .card {
+    position:relative;z-index:2;
+    background:rgba(0,0,0,0.25);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.5);
+    display:flex;flex-direction:column;align-items:center;
+    gap:14px;
+    backdrop-filter:blur(4px) saturate(120%);
   }
-  .card{
-    position:relative;
-    border-radius: var(--radius);
-    background: radial-gradient(circle at 50% 5%, rgba(0,255,217,0.03), transparent 18%),
-                linear-gradient(180deg,#000 0%, #050505 100%);
-    padding:10px 12px;
-    color:#e9f6f3;
-    overflow:hidden;
+
+  /* Modern Circle Design */
+  .circle-wrap {
+    width:220px;height:220px;
+    position:relative;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
   }
-  .card::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius: inherit;
-    box-shadow: inset 0 10px 28px rgba(0,255,217,0.03), inset 0 -6px 20px rgba(0,0,0,0.6);
-    pointer-events:none;
+
+  /* Outer glowing animated ring */
+  .ring {
+    position:absolute;width:220px;height:220px;border-radius:50%;
+    background:conic-gradient(from 0deg, var(--accent), transparent 70%);
+    animation:spin 6s linear infinite;
+    filter:drop-shadow(0 0 15px var(--accent));
   }
-  .title{
-    font-size:16px;
-    letter-spacing:1px;
-    margin:2px 0 6px 0;
-    text-transform: uppercase;
-    font-weight:800;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background: linear-gradient(90deg, #00ffd9, #4db8ff, #ff4d4d, #ffd84d);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: gradMove 3.4s linear infinite;
-    text-shadow:0 0 8px rgba(0,255,217,0.12);
+
+  /* Inner soft glowing border */
+  .ring2 {
+    position:absolute;width:180px;height:180px;border-radius:50%;
+    border:2px solid rgba(0,255,156,0.35);
+    box-shadow:0 0 25px rgba(0,255,156,0.3);
+    animation:pulse 2.5s ease-in-out infinite;
   }
-  @keyframes gradMove{
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  .server-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:6px;
-  }
-  .server-left{
-    font-size:13px;
-    font-weight:700;
-    color:#cfcfcf;
-  }
-  .android-dot{
-    width:18px;height:18px;border-radius:4px;
-    background: linear-gradient(180deg,#2cd05f,#199a36);
-    box-shadow:0 0 8px rgba(25,154,54,0.28);
-    display:inline-block;
-    animation: pulse 1.8s ease-in-out infinite;
-  }
+
+  @keyframes spin{to{transform:rotate(360deg);}}
   @keyframes pulse{
-    0%{transform:scale(1); opacity:1}
-    50%{transform:scale(1.07); opacity:0.85}
-    100%{transform:scale(1); opacity:1}
+    0%,100% {transform:scale(1);opacity:0.6;}
+    50% {transform:scale(1.05);opacity:1;}
   }
-  .online-text{ font-weight:700; color:#36b64a; font-size:13px; }
-  .sep{
-    height:3px;
-    border-radius:2px;
-    background:linear-gradient(90deg,#ff884d,#ffee4d,#4dffeb,#b84dff);
-    background-size:200% 100%;
-    animation: slide 3.2s linear infinite;
-    margin:8px 0;
+
+  /* Inner Content Circle */
+  .inner {
+    width:140px;height:140px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(0,255,156,0.12), rgba(0,0,0,0.5));
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    box-shadow:0 4px 25px rgba(0,255,156,0.35);
+    opacity:0;transition:opacity 0.5s ease-in-out;
   }
-  .sep.alt{
-    background:linear-gradient(90deg,#ffee4d,#4dffeb,#ff4db8,#4db8ff);
-    animation-direction:reverse;
+  .inner.show {opacity:1;}
+
+  .mult {font-size:34px;font-weight:800;color:var(--accent);}
+  .sub {margin-top:4px;font-size:12px;color:var(--muted);letter-spacing:1px;}
+
+  /* Button */
+  .start-btn{
+    background:none;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    padding:8px 14px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.25s;
   }
-  @keyframes slide{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+  .start-btn:hover{
+    background:var(--accent);color:#000;
+    box-shadow:0 0 12px var(--accent);
   }
-  .period{
-    text-align:center;
-    color:#dcdcdc;
-    font-weight:800;
-    font-size:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
+
+  .history {
+    width:100%;margin-top:10px;background:rgba(0,0,0,0.22);
+    padding:10px;border-radius:10px;color:var(--muted);font-size:13px;
+    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
   }
-  .period .num{ color: #ffd84d; min-width:40px; text-align:center; }
-  .bottom{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:8px;
-  }
-  .wingo{ color:#36f0df; font-weight:800; font-size:13px; }
-  .min{ color:#ffd84d; font-weight:900; font-size:14px; margin-top:4px; }
-  .big-text{
-    font-weight:900;
-    text-align:center;
-    display:inline-block;
-    animation: bounce 1.6s ease-in-out infinite;
-  }
-  @keyframes bounce{
-    0%{transform:translateY(0)}
-    50%{transform:translateY(-6px)}
-    100%{transform:translateY(0)}
-  }
-  .zoomIn{
-    animation: zoomIn 0.6s ease forwards;
-  }
-  @keyframes zoomIn{
-    0%{transform:scale(0.4); opacity:0}
-    100%{transform:scale(1); opacity:1}
-  }
-  .loader {
-    width:60px;
-    height:20px;
-    border-radius:8px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    overflow:hidden;
-    position:relative;
-  }
-  .loader::after{
-    content:"";
-    position:absolute;
-    top:0;left:-30%;
-    width:30%;height:100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-    animation: loaderMove 1s linear infinite;
-  }
-  @keyframes loaderMove{0%{left:-30%}100%{left:130%}}
-  .big-mode{
-    background: linear-gradient(180deg,#ff4d4d,#ffffff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color:transparent;
-    font-size:24px;
-    text-shadow:0 6px 18px rgba(255,77,77,0.12);
-  }
-  .small-mode{
-    background: linear-gradient(180deg,#36f0df,#ffffff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color:transparent;
-    font-size:22px;
-    text-shadow:0 6px 16px rgba(54,240,223,0.08);
-  }
+  .chip {padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.05);}
 </style>
 </head>
 <body>
-  <div class="card-wrap">
-    <div class="card">
-      <div class="title">TEAM EARNING</div>
-      <div class="server-row">
-        <div class="server-left">Server :</div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span class="android-dot"></span>
-          <span class="online-text">Online</span>
-        </div>
-      </div>
-      <div class="sep"></div>
-      <div class="period">Period - <span class="num" id="periodNum">---</span></div>
-      <div class="sep alt"></div>
-      <div class="bottom">
-        <div>
-          <div class="wingo">Wingo</div>
-          <div class="min">1 Min -</div>
-        </div>
-        <div id="resultArea">
-          <div class="loader"></div>
-        </div>
+<canvas id="matrix"></canvas>
+
+<div class="app">
+  <div class="card">
+    <div class="circle-wrap">
+      <div class="ring"></div>
+      <div class="ring2"></div>
+      <div class="inner" id="inner">
+        <div class="mult" id="mult"></div>
+        <div class="sub">LIVE</div>
       </div>
     </div>
+
+    <button class="start-btn" id="startBtn">START PREDICTION</button>
+    <div class="history" id="history"></div>
   </div>
+</div>
 
 <script>
-/*
-  Sketchware / older WebView friendly IST computation:
-  - don't rely on Intl timeZone (may be unsupported)
-  - compute IST from UTC via offsets so it works inside embedded WebView
-*/
-
-function pad(n, len = 2) { return String(n).padStart(len, '0'); }
-
-function getISTDate() {
-  // current local time
-  const now = new Date();
-  // convert to UTC milliseconds
-  const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-  // IST offset is +5.5 hours = 5.5 * 3600000 ms
-  const istOffsetMs = 5.5 * 3600000;
-  const ist = new Date(utcMs + istOffsetMs);
-  return ist;
-}
-
-function getISTPartsFallback() {
-  const d = getISTDate();
-  return {
-    year: String(d.getFullYear()),
-    month: pad(d.getMonth() + 1),
-    day: pad(d.getDate()),
-    hour: pad(d.getHours()),
-    minute: pad(d.getMinutes())
-  };
-}
-
-function computeFullPeriodFromIST(parts) {
-  const yyyyMMdd = parts.year + parts.month + parts.day;
-  const hour = parseInt(parts.hour, 10);
-  const minute = parseInt(parts.minute, 10);
-  const totalMinutes = hour * 60 + minute;
-  // keep same original numeric scheme but produce 3-digit suffix reliably
-  const suffix = String(10001 + totalMinutes - 330).slice(-3); // ensures 3 digits
-  return yyyyMMdd + '1000' + suffix;
-}
-
-const periodEl = document.getElementById('periodNum');
-const resultArea = document.getElementById('resultArea');
-let lastFullPeriod = null;
-let loaderTimeout = null;
-
-function showLoaderThenResult(newFullPeriod) {
-  const last3 = newFullPeriod.slice(-3);
-  periodEl.textContent = last3;
-
-  resultArea.innerHTML = `<div class="loader"></div>`;
-  if (loaderTimeout) clearTimeout(loaderTimeout);
-
-  loaderTimeout = setTimeout(() => {
-    const isBig = Math.random() < 0.5;
-    const text = isBig ? "BIG" : "SMALL";
-    resultArea.innerHTML = `<div class="big-text ${isBig ? 'big-mode' : 'small-mode'} zoomIn">${text}</div>`;
-  }, 1500); // shorter delay so it looks responsive in embedded view
-}
-
-function updateEverySecond() {
-  const parts = getISTPartsFallback();
-  const full = computeFullPeriodFromIST(parts);
-  if (full !== lastFullPeriod) {
-    lastFullPeriod = full;
-    showLoaderThenResult(full);
-  }
-}
-
-(function init() {
-  const p = getISTPartsFallback();
-  const full = computeFullPeriodFromIST(p);
-  lastFullPeriod = full;
-  periodEl.textContent = full.slice(-3);
-  resultArea.innerHTML = `<div class="loader"></div>`;
-  setTimeout(() => {
-    const isBig = Math.random() < 0.5;
-    const text = isBig ? "BIG" : "SMALL";
-    resultArea.innerHTML = `<div class="big-text ${isBig ? 'big-mode' : 'small-mode'} zoomIn">${text}</div>`;
-  }, 1500);
-  // run every second to detect minute change
-  setInterval(updateEverySecond, 1000);
+/* Matrix background */
+(function matrixBg(){
+  const canvas=document.getElementById('matrix');const ctx=canvas.getContext('2d');
+  let w=canvas.width=innerWidth,h=canvas.height=innerHeight;
+  const cols=Math.floor(w/14)+1;const ypos=Array(cols).fill(0);
+  function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
+  addEventListener('resize',resize);
+  function draw(){
+    ctx.fillStyle="rgba(0,6,8,0.25)";ctx.fillRect(0,0,w,h);
+    ctx.fillStyle="#00ff9c";ctx.font="13px monospace";
+    for(let i=0;i<ypos.length;i++){
+      const text=String.fromCharCode(0x30A0+Math.random()*96);
+      const x=i*14;ctx.fillText(text,x,ypos[i]*14);
+      if(ypos[i]*14>h&&Math.random()>0.975)ypos[i]=0;ypos[i]++;
+    }
+    requestAnimationFrame(draw);
+  }draw();
 })();
+
+/* Multiplier logic */
+const multEl=document.getElementById('mult');
+const history=document.getElementById('history');
+const inner=document.getElementById('inner');
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  inner.classList.add("show"); // show only after click
+
+  const max=6;
+  const stopAt=(Math.random()*(max-1)+1).toFixed(2);
+  let ticks=0;
+  const spin=setInterval(()=>{
+    ticks++;
+    const v=(1+Math.abs(Math.sin(ticks*0.15))*(max-1)).toFixed(2);
+    multEl.textContent=v+'x';
+    if(ticks>40){
+      clearInterval(spin);
+      multEl.textContent=stopAt+'x';
+      pushHistory("Checked prediction: "+stopAt+"x");
+    }
+  },40);
+});
+
+function pushHistory(text){
+  const c=document.createElement('div');
+  c.className='chip';c.textContent=text;
+  history.prepend(c);
+  while(history.children.length>8)history.removeChild(history.lastChild);
+}
 </script>
 </body>
-</html>
+</html
